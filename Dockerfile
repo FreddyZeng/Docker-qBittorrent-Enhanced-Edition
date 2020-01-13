@@ -12,14 +12,14 @@ RUN  apk add --no-cache ca-certificates make g++ gcc qt5-qtsvg-dev boost-dev qt5
 &&   wget -P /qbtorrent https://github.com/arvidn/libtorrent/releases/download/libtorrent-`echo "$LIBTORRENT_VER"|sed 's#\.#_#g'`/libtorrent-rasterbar-${LIBTORRENT_VER}.tar.gz   \
 &&   tar  -zxvf  /qbtorrent/libtorrent-rasterbar-${LIBTORRENT_VER}.tar.gz   -C    /qbtorrent  \
 &&   cd  /qbtorrent/libtorrent-rasterbar-${LIBTORRENT_VER} \
-&&   ./configure  --host=aarch64-alpine-linux-musl \
+&&   ./configure  --host=aarch32-alpine-linux-musl \
 &&   make install-strip -j4 \
 #qBittorrent-Enhanced-Edition
 &&   wget  -P /qbtorrent https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${QBITTORRENT_VER}.zip   \
 &&   unzip   /qbtorrent/release-${QBITTORRENT_VER}.zip  -d    /qbtorrent  \
 &&    cd  /qbtorrent/qBittorrent-Enhanced-Edition-release-${QBITTORRENT_VER}  \
 #
-&&   ./configure   --disable-gui --host=aarch64-alpine-linux-musl \
+&&   ./configure   --disable-gui --host=aarch32-alpine-linux-musl \
 &&   make install -j4 \
 &&   ldd /usr/local/bin/qbittorrent-nox   |cut -d ">" -f 2|grep lib|cut -d "(" -f 1|xargs tar -chvf /qbtorrent/qbittorrent.tar  \
 &&   mkdir /qbittorrent   \
