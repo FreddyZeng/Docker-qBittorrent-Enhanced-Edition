@@ -15,6 +15,6 @@ jobs:
               publish: true
               imageName: superng6/qbittorrentee
               platform: linux/amd64
-              tag: latest
+              tag: ubuntu-latest
               dockerHubUser: ${{ secrets.DOCKER_USERNAME }}
               dockerHubPassword: ${{ secrets.DOCKER_PASSWORD }}
