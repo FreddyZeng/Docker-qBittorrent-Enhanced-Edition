@@ -12,18 +12,18 @@ RUN apt -y update \
 &&  apt-get -y install libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev \
 &&  apt-get -y install qtbase5-dev qttools5-dev-tools libqt5svg5-dev \
 &&  apt-get -y install geoip-database wget unzip \
-&&  mkdir /libtorrent \
 &&  mkdir /qbittorrent \
 &&  mkdir /qbittorrent-static \
 &&  mkdir -p /compiling/libtorrent \
 &&  mkdir -p /compiling/qbittorrent \
-&&  wget -P /libtorrent https://github.com/arvidn/libtorrent/releases/download/libtorrent-`echo "$LIBTORRENT_VER"|sed 's#\.#_#g'`/libtorrent-rasterbar-${LIBTORRENT_VER}.tar.gz \
-&&  tar -zxvf /libtorrent/libtorrent-rasterbar-${LIBTORRENT_VER}.tar.gz -C /compiling \
-&&  cd /compiling/libtorrent-rasterbar-${LIBTORRENT_VER} \
+&&  git clone https://github.com/arvidn/libtorrent.git \
+&&  cd libtorrent \
+&&  git checkout RC_1_1 \
+&&  ./autotool.sh \
 &&  ./configure --disable-debug --enable-encryption \
 &&  make -j$(nproc) install-strip \
 # qBittorrent-Enhanced-Edition
-&&  wget -P /qbittorrent https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${QBITTORRENT_VER}.zip \
+&&  wget --no-check-certificate -P /qbittorrent https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${QBITTORRENT_VER}.zip \
 &&  unzip /qbittorrent/release-${QBITTORRENT_VER}.zip -d /compiling \
 &&  cd /compiling/qBittorrent-Enhanced-Edition-release-${QBITTORRENT_VER} \
 # make install
@@ -44,7 +44,7 @@ ENV WEBUIPORT=8080 PUID=1026 PGID=100
 
 # add local files and install qbitorrent
 COPY root /
-COPY --from=builder /qbittorrent-static /
+COPY --from=builder --chown=abc:abc /qbittorrent-static /
 
 # install ca-certificates tzdata python3
 RUN apt -y update \
