@@ -21,7 +21,7 @@ RUN apt -y update \
 &&  git checkout RC_1_1 \
 &&  ./autotool.sh \
 &&  ./configure --disable-debug --enable-encryption \
-&&  make -j$(nproc) install-strip \
+&&  make -j$(nproc) install \
 # qBittorrent-Enhanced-Edition
 &&  wget --no-check-certificate -P /qbittorrent https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${QBITTORRENT_VER}.zip \
 &&  unzip /qbittorrent/release-${QBITTORRENT_VER}.zip -d /compiling \
@@ -31,6 +31,7 @@ RUN apt -y update \
 &&  make -j$(nproc) install \
 &&  ldd /usr/local/bin/qbittorrent-nox | cut -d ">" -f 2 | grep lib | cut -d "(" -f 1 | xargs tar -chvf /tmp/qbittorrent.tar \
 &&  tar -xvf /tmp/qbittorrent.tar -C /qbittorrent-static \
+&&  cp --parents /usr/local/lib/libtorrent-rasterbar.so.9 /qbittorrent-static \
 &&  cp --parents /usr/local/bin/qbittorrent-nox /qbittorrent-static
  
 
