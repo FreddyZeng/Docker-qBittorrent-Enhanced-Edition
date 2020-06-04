@@ -86,13 +86,10 @@ echo -e "\n\e[1mScript help\e[0m : \e[32m$(basename -- "$0") -h\e[0m"
 #
 ## This is a list of all modules.
 #
-modules='^(all|bison|gawk|glibc|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libtorrent|qbittorrent)$'
+modules='^(all|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libtorrent|qbittorrent)$'
 #
 ## The installation is modular. You can select the parts you want or need here or using ./scriptname module or install everything using ./scriptname all
 #
-[[ "$1" = 'all' ]] && skip_bison='no' || skip_bison='yes'
-[[ "$1" = 'all' ]] && skip_gawk='no' || skip_gawk='yes'
-[[ "$1" = 'all' ]] && skip_glibc='no' || skip_glibc='yes'
 [[ "$1" = 'all' ]] && skip_zlib='no' || skip_zlib='yes'
 [[ "$1" = 'all' ]] && skip_icu='no' || skip_icu='yes'
 [[ "$1" = 'all' ]] && skip_openssl='no' || skip_openssl='yes'
@@ -208,7 +205,7 @@ export lib_dir="$install_dir/lib"
 custom_flags_set () {
     export CXXFLAGS="-std=c++14"
     export CPPFLAGS="-I$include_dir"
-    export LDFLAGS="-Wl,--no-as-needed -L$lib_dir -lpthread -pthread"
+    export LDFLAGS="-Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
 }
 #
 custom_flags_reset () {
@@ -226,12 +223,6 @@ export local_boost="--with-boost=$install_dir"
 export local_openssl="--with-openssl=$install_dir"
 #
 ## Define some URLs to download our apps. They are dynamic and set the most recent version or release.
-#
-export bison_url="http://ftp.gnu.org/gnu/bison/$(curl -sNL http://ftp.gnu.org/gnu/bison/ | grep -Eo 'bison-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
-#
-export gawk_url="http://ftp.gnu.org/gnu/gawk/$(curl -sNL http://ftp.gnu.org/gnu/gawk/ | grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
-#
-export glibc_url="http://ftp.gnu.org/gnu/libc/$(curl -sNL http://ftp.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
 #
 export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
 export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
@@ -251,79 +242,7 @@ export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -
 #
 export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
 #
-export qbittorrent_github_tag="$(curl -sNL https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
-#
-## bison
-#
-if [[ "$skip_bison" = 'no' ||  "$1" = 'bison' ]]; then
-    #
-    custom_flags_reset
-    #
-    echo -e "\n\e[32mInstalling bison\e[0m\n"
-    #
-    file_bison="$install_dir/bison.tar.gz"
-    #
-    [[ -f "$file_bison" ]] && rm -rf {"$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]")","$file_bison"}
-    #
-    wget -qO "$file_bison" "$bison_url"
-    tar xf "$file_bison" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_bison" | head -1 | cut -f1 -d"/")"
-    #
-    ./configure --prefix="$install_dir"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
-    make install
-else
-    echo -e "\nSkipping \e[95mbison\e[0m module installation"
-fi
-#
-## gawk
-#
-if [[ "$skip_gawk" = 'no' ||  "$1" = 'gawk' ]]; then
-    #
-    custom_flags_reset
-    #
-    echo -e "\n\e[32mInstalling gawk\e[0m\n"
-    #
-    file_gawk="$install_dir/gawk.tar.gz"
-    #
-    [[ -f "$file_gawk" ]] && rm -rf {"$install_dir/$(tar tf "$file_gawk" | grep -Eom1 "(.*)[^/]")","$file_gawk"}
-    #
-    wget -qO "$file_gawk" "$gawk_url"
-    tar xf "$file_gawk" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_gawk" | head -1 | cut -f1 -d"/")"
-    #
-    ./configure --prefix="$install_dir"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
-    make install
-else
-    [[ "$skip_bison" = 'no' ]] || [[ "$skip_bison" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mgawk\e[0m module installation"
-    [[ "$skip_bison" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mgawk\e[0m module installation"
-fi
-#
-## glibc static
-#
-if [[ "$skip_glibc" = 'no' ]] || [[ "$1" = 'glibc' ]]; then
-    #
-    custom_flags_reset
-    #
-    echo -e "\n\e[32mInstalling glibc\e[0m\n"
-    #
-    file_glibc="$install_dir/glibc.tar.xz"
-    #
-    [[ -f "$file_glibc" ]] && rm -rf {"$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]")","$file_glibc"}
-    #
-    wget -qO "$file_glibc" "$glibc_url"
-    tar xf "$file_glibc" -C "$install_dir"
-    mkdir -p "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
-    cd "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
-    #
-    "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/configure" --prefix="$HOME/qbittorrent-build" --enable-static-nss
-    make -j$(nproc)
-    make install
-else
-    [[ "$skip_gawk" = 'no' ]] || [[ "$skip_gawk" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mglibc\e[0m module installation"
-    [[ "$skip_gawk" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mglibc\e[0m module installation"
-fi
+export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
 ## zlib installation
 #
@@ -345,8 +264,7 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
     make install
 else
-    [[ "$skip_glibc" = 'no' ]] || [[ "$skip_glibc" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mzlib\e[0m module installation"
-    [[ "$skip_glibc" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mzlib\e[0m module installation"
+    echo -e "\nSkipping \e[95mzlib\e[0m module installation"
 fi
 #
 ## ICU installation
@@ -481,7 +399,7 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     cd "$folder_qttools"
     #
     "$install_dir/bin/qmake" -set prefix "$install_dir"
-    "$install_dir/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static"
+    "$install_dir/bin/qmake"
     make -j$(nproc)
     make install
 else
@@ -529,7 +447,7 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     cd "$folder_qbittorrent"
     #
     ./bootstrap.sh
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="--static -static $CPPFLAGS" LDFLAGS="--static -static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -ldl -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
@@ -547,8 +465,6 @@ fi
 if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     echo -e "\n\e[32mDeleting installation files\e[0m\n"
     #
-    [[ -f "$file_bison" ]] && rm -rf {"$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]")","$file_bison"}
-    [[ -f "$file_gawk" ]] && rm -rf {"$install_dir/$(tar tf "$file_gawk" | grep -Eom1 "(.*)[^/]")","$file_gawk"}
     [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
     [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
     [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
@@ -557,7 +473,6 @@ if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
-    [[ -f "$file_glibc" ]] && rm -rf {"$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]")","$file_glibc"}
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
     [[ -f "$HOME/user-config.jam" ]] && rm -rf "$HOME/user-config.jam"
 else
