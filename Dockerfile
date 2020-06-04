@@ -6,7 +6,7 @@ LABEL maintainer="SuperNG6"
 # builde qBittorrent Enhanced Edition
 COPY qbittorrent-nox-staticish.sh /qbittorrent-nox-staticish.sh
 RUN chmod +x /qbittorrent-nox-staticish.sh
-RUN /qbittorrent-nox-staticish.sh
+RUN /qbittorrent-nox-staticish.sh all
 RUN /qbittorrent-nox-staticish.sh install
 
 # docker qBittorrent-Enhanced-Edition
