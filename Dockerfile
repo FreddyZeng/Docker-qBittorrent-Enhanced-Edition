@@ -4,12 +4,12 @@ FROM lsiobase/ubuntu:bionic as builder
 LABEL build_version="SuperNG6.qbittorrentEE:- ${QBITTORRENT_VER}"
 LABEL maintainer="SuperNG6"
 # builde qBittorrent Enhanced Edition
-COPY qbittorrent-nox-staticish.sh /qbittorrent-nox-staticish.sh
+COPY qbittorrent-nox-static-glibc.sh /qbittorrent-nox-static-glibc.sh
 RUN apt update -y \
 && apt install -y wget unzip \
-&& chmod +x /qbittorrent-nox-staticish.sh
-RUN /qbittorrent-nox-staticish.sh all
-RUN /qbittorrent-nox-staticish.sh install
+&& chmod +x /qbittorrent-nox-static-glibc.sh
+RUN /qbittorrent-nox-static-glibc.sh all
+RUN /qbittorrent-nox-static-glibc.sh install
 
 # docker qBittorrent-Enhanced-Edition
 FROM lsiobase/ubuntu:bionic
