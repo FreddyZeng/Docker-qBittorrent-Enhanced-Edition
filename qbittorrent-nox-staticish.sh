@@ -242,7 +242,7 @@ export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -
 #
 export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
 #
-export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
+export qbittorrent_github_tag="$(curl -sNL https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
 ## zlib installation
 #
