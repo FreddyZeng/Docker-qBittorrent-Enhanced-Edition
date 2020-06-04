@@ -5,8 +5,9 @@ LABEL build_version="SuperNG6.qbittorrentEE:- ${QBITTORRENT_VER}"
 LABEL maintainer="SuperNG6"
 # builde qBittorrent Enhanced Edition
 COPY qbittorrent-nox-staticish.sh /qbittorrent-nox-staticish.sh
-RUN apt install -y wget unzip
-RUN chmod +x /qbittorrent-nox-staticish.sh
+RUN apt update -y \
+&& apt install -y wget unzip \
+&& chmod +x /qbittorrent-nox-staticish.sh
 RUN /qbittorrent-nox-staticish.sh all
 RUN /qbittorrent-nox-staticish.sh install
 
