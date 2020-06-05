@@ -250,8 +250,7 @@ export qt_version='5.14'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
 export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
-#
-export qbittorrent_github_tag="$(curl -sNL https://github.com/c0re100/qBittorrent-Enhanced-Edition/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
+
 #
 ## bison
 #
@@ -524,7 +523,9 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
     #
-    git clone --branch "$qbittorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
+    wget https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${QBITTORRENT_VER}.zip
+    unzip release-${QBITTORRENT_VER}.zip
+    mv qBittorrent-Enhanced-Edition-release-${QBITTORRENT_VER} "$folder_qbittorrent"
     #
     cd "$folder_qbittorrent"
     #

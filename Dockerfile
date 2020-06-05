@@ -3,6 +3,8 @@ FROM lsiobase/ubuntu:bionic as builder
 # set version label
 LABEL build_version="SuperNG6.qbittorrentEE:- ${QBITTORRENT_VER}"
 LABEL maintainer="SuperNG6"
+# qbittorrent version
+ARG QBITTORRENT_VER=4.2.5.12
 # builde qBittorrent Enhanced Edition
 COPY qbittorrent-nox-static-glibc.sh /qbittorrent-nox-static-glibc.sh
 RUN apt update -y \
